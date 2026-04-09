@@ -1,4 +1,4 @@
-import StellarSdk from 'js-stellar-sdk'
+import * as StellarSdk from '@stellar/stellar-sdk'
 
 /**
  * Soroban Service Layer
@@ -27,12 +27,11 @@ const CONTRACT_ID = process.env.NEXT_PUBLIC_SKILLBOND_CONTRACT_ID || 'placeholde
 
 // Lazy getters for SDK components
 const getSorobanRpc = () => {
-  const SorobanRpc = StellarSdk.SorobanRpc
-  return new SorobanRpc.Server(RPC_URL, { allowHttp: true })
+  return new StellarSdk.rpc.Server(RPC_URL, { allowHttp: true })
 }
 
 const getTestnetPassphrase = () => {
-  return StellarSdk.Networks.TESTNET_NETWORK_PASSPHRASE
+  return StellarSdk.Networks.TESTNET
 }
 
 export const sorobanService = {
@@ -43,10 +42,9 @@ export const sorobanService = {
     try {
       const rpc = getSorobanRpc()
       const account = await rpc.getAccount(address)
-      const nativeBalance = account.balances.find((b: any) => b.asset_type === 'native')
       return {
-        balance: nativeBalance?.balance || '0',
-        sequenceNumber: account.sequence
+        balance: '0', // Fetching exact balance requires Horizon or contract read
+        sequenceNumber: account.sequenceNumber()
       }
     } catch (e: any) {
       return { balance: '0', sequenceNumber: '0', error: e.message }
@@ -163,12 +161,13 @@ export const sorobanService = {
         return { success: false, error: signedTx.error }
       }
 
-      const response = await rpc.sendTransaction(signedTx.signedTxXdr)
+      const txToSubmit = StellarSdk.TransactionBuilder.fromXDR(signedTx.signedTxXdr, TESTNET_PASSPHRASE) as StellarSdk.Transaction;
+      const response = await rpc.sendTransaction(txToSubmit)
       
       // We might need to wait for transaction to process to get true success,
       // but returning the pending txHash is good enough for UX
       return {
-        success: response.status === 'PENDING' || response.status === 'SUCCESS',
+        success: response.status === 'PENDING',
         txHash: response.hash,
       }
     } catch (e: any) {
