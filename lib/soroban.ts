@@ -119,13 +119,16 @@ export const sorobanService = {
    */
   async sendPayment(toAddress: string, amount: string): Promise<SorobanResult> {
     try {
-      const { isConnected, getPublicKey, signTransaction } = await import('@stellar/freighter-api')
+      const { isConnected, requestAccess, signTransaction } = await import('@stellar/freighter-api')
       
       if (typeof window === 'undefined' || !(await isConnected())) {
         return { success: false, error: 'Freighter not installed or not connected' }
       }
 
-      const publicKey = await getPublicKey()
+      const accessParams = await requestAccess()
+      if (accessParams.error) return { success: false, error: accessParams.error }
+      
+      const publicKey = accessParams.address
       if (!publicKey) {
         return { success: false, error: 'Please connect your Freighter wallet' }
       }
@@ -160,7 +163,7 @@ export const sorobanService = {
         return { success: false, error: signedTx.error }
       }
 
-      const response = await rpc.sendTransaction(signedTx as string)
+      const response = await rpc.sendTransaction(signedTx.signedTxXdr)
       
       // We might need to wait for transaction to process to get true success,
       // but returning the pending txHash is good enough for UX
