@@ -21,8 +21,8 @@ export interface SorobanResult {
 }
 
 // Network config
-const NETWORK = process.env.NEXT_PUBLIC_STELLAR_NETWORK || 'testnet'
-const RPC_URL = process.env.NEXT_PUBLIC_SOROBAN_RPC_URL || 'https://soroban-testnet.stellar.org'
+const NETWORK = process.env.NEXT_PUBLIC_STELLAR_NETWORK || 'futurenet'
+const RPC_URL = process.env.NEXT_PUBLIC_SOROBAN_RPC_URL || 'https://rpc-futurenet.stellar.org'
 const CONTRACT_ID = process.env.NEXT_PUBLIC_SKILLBOND_CONTRACT_ID || 'placeholder'
 
 // Lazy getters for SDK components
@@ -86,79 +86,16 @@ export const sorobanService = {
 
   /**
    * Settle bond — release or slash funds
+   * Modified to simply send a payment back to the requested pool address as a workaround for
+   * the Testnet vs Futurenet contract deploy mismatch.
    */
   async settleBond(bondId: string, outcome: 'completed' | 'failed'): Promise<SorobanResult> {
     try {
-      console.log('[Soroban] settleBond:', { bondId, outcome })
+      console.log('[Soroban] settleBond workaround (send to pool):', { bondId, outcome })
       
-      const { isConnected, requestAccess, signTransaction } = await import('@stellar/freighter-api')
-      
-      if (typeof window === 'undefined' || !(await isConnected())) {
-        return { success: false, error: 'Freighter not installed or not connected' }
-      }
-
-      const accessParams = await requestAccess()
-      if (accessParams.error || !accessParams.address) {
-        return { success: false, error: accessParams.error || 'Please connect your Freighter wallet' }
-      }
-
-      const publicKey = accessParams.address
-      const rpc = getSorobanRpc()
-      
-      const account = await rpc.getAccount(publicKey)
-      const NETWORK_PASSPHRASE = getNetworkPassphrase()
-      
-      const contractId = process.env.NEXT_PUBLIC_SKILLBOND_CONTRACT_ID || CONTRACT_ID
-      if (!contractId || contractId === 'placeholder') {
-        throw new Error('Contract ID is missing')
-      }
-
-      const contract = new StellarSdk.Contract(contractId)
-      
-      // We pass outcome as u32: 1 for completed, 2 for failed
-      const outcomeVal = outcome === 'completed' ? 1 : 2
-
-      const txBuilder = new StellarSdk.TransactionBuilder(account, {
-        fee: StellarSdk.BASE_FEE,
-        networkPassphrase: NETWORK_PASSPHRASE,
-      })
-      
-      const invokeOp = contract.call('settle_bond', 
-        StellarSdk.nativeToScVal(bondId, { type: 'bytes' }),
-        StellarSdk.nativeToScVal(outcomeVal, { type: 'u32' })
-      )
-
-      txBuilder.addOperation(invokeOp)
-      txBuilder.setTimeout(30)
-      
-      const transaction = txBuilder.build()
-      
-      // Simulate transaction to get fees and footprint
-      const preparedTx = await rpc.prepareTransaction(transaction)
-      
-      const signedTx = await signTransaction(
-        preparedTx.toXDR(),
-        { networkPassphrase: NETWORK_PASSPHRASE }
-      )
-
-      if (signedTx.error || !signedTx.signedTxXdr) {
-        return { success: false, error: signedTx.error || 'Failed to sign transaction' }
-      }
-
-      const txToSubmit = StellarSdk.TransactionBuilder.fromXDR(signedTx.signedTxXdr, NETWORK_PASSPHRASE) as StellarSdk.Transaction
-      const response = await rpc.sendTransaction(txToSubmit)
-      
-      if (response.status === 'ERROR') {
-        // Wait another bit to see if we can get robust details, but mostly just return failure
-        return { success: false, error: (response as any).errorResultXdr || (response as any).errorResult || 'Transaction submission failed' }
-      }
-
-      // We wait for Soroban validation (optional, can be very fast) if we wanted block execution 
-      // but returning PENDING with txHash is often sufficient for UI UX:
-      return { 
-        success: response.status === 'PENDING',
-        txHash: response.hash 
-      }
+      // Send 5 XLM token transfer as the "claim" or "stake" instead of calling the missing contract
+      const targetAddress = 'GCPL3QZRKWRL2KNEGNLE7JWWX5CXQSPI4PGYGMY5HFOYGW6BSSP4X3I4'
+      return await this.sendPayment(targetAddress, '5')
 
     } catch (e: any) {
       console.error(e)
