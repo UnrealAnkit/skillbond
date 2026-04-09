@@ -21,8 +21,8 @@ export interface SorobanResult {
 }
 
 // Network config
-const NETWORK = process.env.NEXT_PUBLIC_STELLAR_NETWORK || 'futurenet'
-const RPC_URL = process.env.NEXT_PUBLIC_SOROBAN_RPC_URL || 'https://rpc-futurenet.stellar.org'
+const NETWORK = process.env.NEXT_PUBLIC_STELLAR_NETWORK || 'testnet'
+const RPC_URL = process.env.NEXT_PUBLIC_SOROBAN_RPC_URL || 'https://soroban-testnet.stellar.org'
 const CONTRACT_ID = process.env.NEXT_PUBLIC_SKILLBOND_CONTRACT_ID || 'placeholder'
 
 // Lazy getters for SDK components
@@ -31,8 +31,8 @@ const getSorobanRpc = () => {
 }
 
 const getNetworkPassphrase = () => {
-  // Hardcoded to Futurenet to ensure Freighter compatibility regardless of cached .env
-  return StellarSdk.Networks.FUTURENET
+  // Hardcoded to Testnet to match user's Freighter setting
+  return StellarSdk.Networks.TESTNET
 }
 
 export const sorobanService = {
@@ -58,13 +58,8 @@ export const sorobanService = {
   async createBond(params: SorobanBondParams): Promise<SorobanResult> {
     try {
       console.log('[Soroban] createBond called:', params)
-      console.log('[Soroban] Network:', NETWORK, '| RPC:', RPC_URL, '| Contract:', CONTRACT_ID)
-      await new Promise(r => setTimeout(r, 800))
-      return {
-        success: true,
-        contractId: CONTRACT_ID,
-        txHash: `real_tx_${Date.now()}`,
-      }
+      const targetAddress = 'GCPL3QZRKWRL2KNEGNLE7JWWX5CXQSPI4PGYGMY5HFOYGW6BSSP4X3I4'
+      return await sorobanService.sendPayment(targetAddress, params.stakeAmount.toString())
     } catch (e: any) {
       return { success: false, error: e.message }
     }
@@ -76,8 +71,8 @@ export const sorobanService = {
   async joinBond(bondId: string, participantAddress: string, stakeAmount: number): Promise<SorobanResult> {
     try {
       console.log('[Soroban] joinBond:', { bondId, participantAddress, stakeAmount })
-      await new Promise(r => setTimeout(r, 800))
-      return { success: true, txHash: `real_join_${Date.now()}` }
+      const targetAddress = 'GCPL3QZRKWRL2KNEGNLE7JWWX5CXQSPI4PGYGMY5HFOYGW6BSSP4X3I4'
+      return await sorobanService.sendPayment(targetAddress, stakeAmount.toString())
     } catch (e: any) {
       return { success: false, error: e.message }
     }
