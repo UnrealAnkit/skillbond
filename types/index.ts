@@ -75,4 +75,5 @@ export interface CreateBondInput {
   end_date: string
   proof_type: ProofType
   visibility: Visibility
+  soroban_tx_hash?: string
 }

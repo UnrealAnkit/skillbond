@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
 
 :root {
   --font-display: 'Syne', system-ui, sans-serif;

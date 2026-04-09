@@ -10,6 +10,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { BOND_CATEGORIES } from '@/lib/utils'
 import { Lock, AlertCircle } from 'lucide-react'
+import { sorobanService } from '@/lib/soroban'
+
+// Treasury escrow
+const ESCROW_ADDRESS = 'GCVB4L2OU24RGZQH4YEV3WDKKZS4ATEBFONJFDP7GUWXKQAAQV6P2K2P'
 
 export default function CreateBondPage() {
   const router = useRouter()
@@ -32,17 +36,35 @@ export default function CreateBondPage() {
     if (new Date(form.end_date) <= new Date(form.start_date)) {
       setError('End date must be after start date'); return
     }
+    
     setLoading(true)
     setError(null)
+    
+    // 1. Process payment via Freighter if > 0
+    const amtParsed = parseFloat(form.stake_amount)
+    let txHash: string | undefined = undefined;
+    
+    if (amtParsed > 0) {
+      const txResult = await sorobanService.sendPayment(ESCROW_ADDRESS, amtParsed.toString())
+      if (!txResult.success) {
+        setError(txResult.error || 'Transaction failed or rejected')
+        setLoading(false)
+        return
+      }
+      txHash = txResult.txHash;
+    }
+
+    // 2. Insert into database
     const result = await createBond({
       title: form.title,
       description: form.description,
       category: form.category,
-      stake_amount: parseFloat(form.stake_amount),
+      stake_amount: amtParsed,
       start_date: form.start_date,
       end_date: form.end_date,
       proof_type: form.proof_type as any,
       visibility: form.visibility as any,
+      soroban_tx_hash: txHash,
     })
     if (result.error) { setError(result.error); setLoading(false); return }
     router.push(`/bond/${result.data?.id}`)

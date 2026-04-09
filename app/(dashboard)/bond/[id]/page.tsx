@@ -91,7 +91,7 @@ export default async function BondDetailPage({ params }: { params: Promise<{ id:
       {/* Actions */}
       <div className="flex flex-wrap gap-3">
         {!isCreator && !isParticipant && bond.status === 'active' && (
-          <JoinBondButton bondId={bond.id} />
+          <JoinBondButton bondId={bond.id} requiredStake={bond.stake_amount || 0} />
         )}
         {(isCreator || isParticipant) && (bond.status === 'active' || bond.status === 'under_review') && (
           <Link

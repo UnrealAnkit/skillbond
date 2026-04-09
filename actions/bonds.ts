@@ -11,20 +11,31 @@ export async function createBond(input: CreateBondInput) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Ensure profile exists to satisfy foreign key constraint
+  const profileResponse = await supabase.from('profiles').select('id').eq('id', user.id).single()
+  if (!profileResponse.data) {
+    await supabase.from('profiles').insert({
+      id: user.id,
+      full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+    })
+  }
+
   const { data, error } = await supabase
     .from('skill_bonds')
     .insert({
       ...input,
       creator_id: user.id,
       status: 'active',
+      soroban_tx_hash: input.soroban_tx_hash || null,
+      soroban_contract_id: input.soroban_tx_hash ? 'pending_contract_verify' : null,
     })
     .select()
     .single()
 
   if (error) return { error: error.message }
 
-  // Scaffold Soroban call
-  if (data && input.stake_amount > 0) {
+  // If a real tx was completely skipped (maybe 0 stake), scaffold mock
+  if (data && input.stake_amount > 0 && !input.soroban_tx_hash) {
     const sorobanResult = await sorobanService.createBond({
       bondId: data.id,
       creatorAddress: 'pending_wallet',
@@ -87,6 +98,15 @@ export async function joinBond(bondId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  // Ensure profile exists to satisfy foreign key constraint
+  const profileResponse = await supabase.from('profiles').select('id').eq('id', user.id).single()
+  if (!profileResponse.data) {
+    await supabase.from('profiles').insert({
+      id: user.id,
+      full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+    })
+  }
 
   const { data: bond } = await supabase
     .from('skill_bonds')

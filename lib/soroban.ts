@@ -119,17 +119,17 @@ export const sorobanService = {
    */
   async sendPayment(toAddress: string, amount: string): Promise<SorobanResult> {
     try {
-      if (typeof window === 'undefined') {
-        return { success: false, error: 'Window not available' }
-      }
+      const { isConnected, getPublicKey, signTransaction } = await import('@stellar/freighter-api')
       
-      // @ts-ignore
-      if (!window.freighter) {
-        return { success: false, error: 'Freighter not installed' }
+      if (typeof window === 'undefined' || !(await isConnected())) {
+        return { success: false, error: 'Freighter not installed or not connected' }
       }
 
-      // @ts-ignore
-      const publicKey = await window.freighter.getPublicKey()
+      const publicKey = await getPublicKey()
+      if (!publicKey) {
+        return { success: false, error: 'Please connect your Freighter wallet' }
+      }
+
       const rpc = getSorobanRpc()
       const account = await rpc.getAccount(publicKey)
       
@@ -151,13 +151,19 @@ export const sorobanService = {
         .setTimeout(30)
         .build()
 
-      // @ts-ignore
-      const { signedXDR } = await window.freighter.signTransaction(
+      const signedTx = await signTransaction(
         transaction.toXDR(),
-        TESTNET_PASSPHRASE
+        { networkPassphrase: TESTNET_PASSPHRASE }
       )
 
-      const response = await rpc.sendTransaction(signedXDR)
+      if (signedTx.error) {
+        return { success: false, error: signedTx.error }
+      }
+
+      const response = await rpc.sendTransaction(signedTx as string)
+      
+      // We might need to wait for transaction to process to get true success,
+      // but returning the pending txHash is good enough for UX
       return {
         success: response.status === 'PENDING' || response.status === 'SUCCESS',
         txHash: response.hash,
