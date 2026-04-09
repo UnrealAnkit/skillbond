@@ -4,20 +4,10 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { Wallet, Check } from 'lucide-react'
+import { isConnected, getPublicKey } from '@stellar/freighter-api'
 
 interface WalletConnectProps {
   onConnected?: (address: string) => void
-}
-
-declare global {
-  interface Window {
-    freighter?: {
-      getPublicKey: () => Promise<string>
-      getNetwork: () => Promise<any>
-      isConnected: () => Promise<boolean>
-      signTransaction: (xdr: string, passphrase: string) => Promise<any>
-    }
-  }
 }
 
 export function WalletConnect({ onConnected }: WalletConnectProps) {
@@ -27,24 +17,8 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
   const supabase = createClient()
 
   useEffect(() => {
-    // Log detection checks for debugging
-    const check1 = typeof window !== 'undefined' && !!window.freighter
-    console.log('Freighter check at mount:', check1)
-
-    const t1 = setTimeout(() => {
-      const check2 = typeof window !== 'undefined' && !!window.freighter
-      console.log('Freighter check at 1s:', check2)
-    }, 1000)
-
-    const t2 = setTimeout(() => {
-      const check3 = typeof window !== 'undefined' && !!window.freighter
-      console.log('Freighter check at 2.5s:', check3)
-    }, 2500)
-
-    return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
-    }
+    // We rely on @stellar/freighter-api's isConnected() method now.
+    // So we don't need manual interval checks.
   }, [])
 
   async function handleConnect() {
@@ -52,20 +26,19 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
     setLoading(true)
 
     try {
-      if (typeof window === 'undefined') {
-        throw new Error('Window not available - this is a client-side feature')
-      }
+      const currentHost = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+      const connected = await isConnected()
 
-      if (!window.freighter) {
+      if (!connected) {
         throw new Error(
-          'Freighter wallet not detected.\n\n' +
-          'Install from: https://freighter.app\n\n' +
-          'After installing, configure http://localhost:3000 in Freighter Settings → Whitelist'
+          'Freighter wallet not detected or not allowed.\n\n' +
+          '1. Install from: https://freighter.app\n' +
+          `2. In Freighter Settings → Whitelist, make sure to add:\n   ${currentHost}\n`
         )
       }
 
       console.log('Connecting to Freighter...')
-      const publicKey = await window.freighter.getPublicKey()
+      const publicKey = await getPublicKey()
       console.log('Got public key:', publicKey)
 
       if (!publicKey) {
@@ -90,11 +63,12 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
       onConnected?.(publicKey)
     } catch (error: any) {
       let errorMsg = error?.message || 'Failed to connect wallet'
+      const currentHost = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
       
       // Better error messages for common issues
       if (errorMsg.includes('Origin not allowed')) {
         errorMsg = 'Freighter blocked this origin.\n\n' +
-          'Fix: Add http://localhost:3000 to Freighter → Settings → Whitelist'
+          `Fix: Add ${currentHost} to Freighter → Settings → Whitelist`
       } else if (errorMsg.includes('User rejected the request')) {
         errorMsg = 'You rejected the wallet connection request'
       }
