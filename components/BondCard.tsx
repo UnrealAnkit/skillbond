@@ -1,8 +1,10 @@
-import Link from 'next/link'
+'use client'
+
+import { useRouter } from 'next/navigation'
 import { BondStatusBadge } from './BondStatusBadge'
 import { formatDate, timeLeft, formatXLM } from '@/lib/utils'
 import type { SkillBond } from '@/types'
-import { Clock, Users, Lock, GitBranch } from 'lucide-react'
+import { Clock, Users, Lock, GitBranch, ExternalLink } from 'lucide-react'
 
 const PROOF_ICONS: Record<string, React.ReactNode> = {
   github: <GitBranch className="w-3 h-3" />,
@@ -22,13 +24,17 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export function BondCard({ bond }: { bond: SkillBond }) {
+  const router = useRouter()
   const participantCount = bond.bond_participants?.length ?? 0
   const daysLeft = timeLeft(bond.end_date)
   const catColor = CATEGORY_COLORS[bond.category] || CATEGORY_COLORS.default
 
+  const handleCardClick = () => {
+    router.push(`/bond/${bond.id}`)
+  }
+
   return (
-    <Link href={`/bond/${bond.id}`}>
-      <div className="group relative rounded-2xl border border-white/7 bg-[#0D1117] p-5 hover:border-accent/30 hover:bg-[#0D1117] transition-all duration-200 cursor-pointer overflow-hidden">
+    <div onClick={handleCardClick} className="group relative rounded-2xl border border-white/7 bg-[#0D1117] p-5 hover:border-accent/30 hover:bg-[#0D1117] transition-all duration-200 cursor-pointer overflow-hidden">
         {/* Hover glow */}
         <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-accent/3 to-transparent pointer-events-none" />
 
@@ -76,21 +82,36 @@ export function BondCard({ bond }: { bond: SkillBond }) {
           </div>
         </div>
 
-        {/* Creator */}
-        {bond.profiles && (
-          <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2">
-            <div className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center">
-              <span className="text-[9px] font-bold text-accent">
-                {(bond.profiles.full_name || 'A')[0].toUpperCase()}
+        {/* Creator & Tx */}
+        <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between gap-2 flex-wrap">
+          {bond.profiles && (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center">
+                <span className="text-[9px] font-bold text-accent">
+                  {(bond.profiles.full_name || 'A')[0].toUpperCase()}
+                </span>
+              </div>
+              <span className="text-xs text-zinc-600">
+                {bond.profiles.full_name || bond.profiles.username || 'Anonymous'}
               </span>
             </div>
-            <span className="text-xs text-zinc-600">
-              {bond.profiles.full_name || bond.profiles.username || 'Anonymous'}
-            </span>
-            <span className="text-xs text-zinc-700 ml-auto">{formatDate(bond.created_at)}</span>
+          )}
+          <div className="flex items-center justify-end gap-2 text-xs flex-1">
+            {bond.soroban_tx_hash && (
+              <a 
+                href={`https://stellar.expert/explorer/testnet/tx/${bond.soroban_tx_hash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center text-blue-400 hover:text-blue-300 transition-colors"
+                title="View Transaction on Stellar Explorer"
+              >
+                <ExternalLink className="w-3 h-3 mr-1" /> Explorer
+              </a>
+            )}
+            <span className="text-zinc-700">{formatDate(bond.created_at)}</span>
           </div>
-        )}
+        </div>
       </div>
-    </Link>
   )
 }
