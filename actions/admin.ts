@@ -9,7 +9,7 @@ export async function checkAdmin() {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login');
+    redirect('/admin/login');
   }
 
   const { data: profile } = await supabase
@@ -19,7 +19,7 @@ export async function checkAdmin() {
     .single();
 
   if (profile?.role !== 'admin') {
-    redirect('/dashboard');
+    redirect('/admin/login');
   }
 
   return user;

@@ -1,0 +1,35 @@
+import AdminLoginForm from '@/components/admin/AdminLoginForm';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+
+export const metadata = {
+  title: 'Admin Login | SkillBond',
+};
+
+export default async function AdminLoginPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // If already logged in, check if they are admin to redirect away from login
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role === 'admin') {
+      redirect('/admin');
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#080B0F]">
+      <div className="w-full max-w-md mb-8 text-center">
+        <h1 className="font-display font-bold text-3xl text-white tracking-tight mb-2">SkillBond</h1>
+        <p className="text-zinc-400">Secure Administration Portal</p>
+      </div>
+      <AdminLoginForm />
+    </div>
+  );
+}
