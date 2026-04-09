@@ -23,23 +23,23 @@ declare global {
 export function WalletConnect({ onConnected }: WalletConnectProps) {
   const [loading, setLoading] = useState(false)
   const [address, setAddress] = useState<string | null>(null)
-  const [freighterAvailable, setFreighterAvailable] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
-    // Simple check - just see if window.freighter exists
-    const checkFreighter = () => {
-      const available = typeof window !== 'undefined' && !!window.freighter
-      setFreighterAvailable(available)
-      console.log('Freighter available:', available)
-    }
+    // Log detection checks for debugging
+    const check1 = typeof window !== 'undefined' && !!window.freighter
+    console.log('Freighter check at mount:', check1)
 
-    // Check on mount
-    checkFreighter()
+    const t1 = setTimeout(() => {
+      const check2 = typeof window !== 'undefined' && !!window.freighter
+      console.log('Freighter check at 1s:', check2)
+    }, 1000)
 
-    // Check again in case extension loads late
-    const t1 = setTimeout(checkFreighter, 1000)
-    const t2 = setTimeout(checkFreighter, 2500)
+    const t2 = setTimeout(() => {
+      const check3 = typeof window !== 'undefined' && !!window.freighter
+      console.log('Freighter check at 2.5s:', check3)
+    }, 2500)
 
     return () => {
       clearTimeout(t1)
@@ -48,24 +48,28 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
   }, [])
 
   async function handleConnect() {
+    setError(null)
     setLoading(true)
 
     try {
-      if (typeof window === 'undefined' || !window.freighter) {
-        console.error('Freighter not available')
-        setFreighterAvailable(false)
-        setLoading(false)
-        return
+      if (typeof window === 'undefined') {
+        throw new Error('Window not available - this is a client-side feature')
       }
 
-      console.log('Getting public key from Freighter...')
+      if (!window.freighter) {
+        throw new Error(
+          'Freighter wallet not detected.\n\n' +
+          'Install from: https://freighter.app\n\n' +
+          'After installing, configure http://localhost:3000 in Freighter Settings → Whitelist'
+        )
+      }
+
+      console.log('Connecting to Freighter...')
       const publicKey = await window.freighter.getPublicKey()
       console.log('Got public key:', publicKey)
 
       if (!publicKey) {
-        console.error('No public key returned')
-        setLoading(false)
-        return
+        throw new Error('Failed to get public key from Freighter')
       }
 
       setAddress(publicKey)
@@ -79,10 +83,22 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
           .catch(e => console.log('Profile update skipped:', e.message))
       }
 
+      console.log('Wallet connected successfully:', publicKey)
       onConnected?.(publicKey)
     } catch (error: any) {
-      console.error('Wallet connection error:', error)
-      setFreighterAvailable(false)
+      let errorMsg = error?.message || 'Failed to connect wallet'
+      
+      // Better error messages for common issues
+      if (errorMsg.includes('Origin not allowed')) {
+        errorMsg = 'Freighter blocked this origin.\n\n' +
+          'Fix: Add http://localhost:3000 to Freighter → Settings → Whitelist'
+      } else if (errorMsg.includes('User rejected the request')) {
+        errorMsg = 'You rejected the wallet connection request'
+      }
+      
+      console.error('Wallet connection error:', errorMsg)
+      setError(errorMsg)
+      alert(`⚠ Wallet Error:\n\n${errorMsg}`)
     } finally {
       setLoading(false)
     }
@@ -102,11 +118,11 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
   return (
     <Button
       onClick={handleConnect}
-      disabled={loading || !freighterAvailable}
+      disabled={loading}
       variant="secondary"
       size="sm"
       className="text-xs px-2 h-8 whitespace-nowrap"
-      title={!freighterAvailable ? 'Install Freighter from freighter.app' : 'Connect wallet'}
+      title="Click to connect your Freighter wallet"
     >
       <Wallet className="w-3 h-3 flex-shrink-0" />
       <span className="hidden sm:inline">{loading ? 'Connecting...' : 'Wallet'}</span>
