@@ -43,7 +43,7 @@ export const sorobanService = {
     try {
       const rpc = getSorobanRpc()
       const account = await rpc.getAccount(address)
-      const nativeBalance = account.balances.find(b => b.asset_type === 'native')
+      const nativeBalance = account.balances.find((b: any) => b.asset_type === 'native')
       return {
         balance: nativeBalance?.balance || '0',
         sequenceNumber: account.sequence

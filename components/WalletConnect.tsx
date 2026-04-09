@@ -77,10 +77,13 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
       // Save to profile
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        await supabase.from('profiles')
-          .update({ wallet_address: publicKey })
-          .eq('id', user.id)
-          .catch(e => console.log('Profile update skipped:', e.message))
+        try {
+          await supabase.from('profiles')
+            .update({ wallet_address: publicKey })
+            .eq('id', user.id)
+        } catch (e: any) {
+          console.log('Profile update skipped:', e.message)
+        }
       }
 
       console.log('Wallet connected successfully:', publicKey)
