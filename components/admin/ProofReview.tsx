@@ -57,7 +57,7 @@ export default function ProofReview({ bond }: { bond: any }) {
               <div key={participant.user_id} className="bg-background border rounded p-3 text-sm">
                 <div className="flex justify-between mb-1">
                   <span className="font-medium">{participant.profiles?.email}</span>
-                  <Badge variant="outline" className="text-[10px]">{participant.status}</Badge>
+                  <Badge variant="secondary" className="text-[10px]">{participant.status}</Badge>
                 </div>
                 <div className="text-xs text-muted-foreground font-mono truncate mb-2">
                   {participant.profiles?.wallet_address || 'No wallet'}

@@ -85,7 +85,7 @@ export default function BondsTable({ bonds }: BondsTableProps) {
                       </td>
                       <td className="px-4 py-3 text-center">{bond.bond_participants?.length || 0}</td>
                       <td className="px-4 py-3">
-                        <Badge variant="outline" className={getStatusColor(bond.status)}>
+                        <Badge variant="secondary" className={getStatusColor(bond.status)}>
                           {bond.status}
                         </Badge>
                       </td>
