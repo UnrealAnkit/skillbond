@@ -75,7 +75,7 @@ export default async function BondDetailPage({ params }: { params: Promise<{ id:
           ))}
         </div>
 
-        <div className="flex items-center gap-2 mt-4 text-sm text-zinc-500">
+        <div className="flex items-center gap-2 mt-4 flex-wrap text-sm text-zinc-500">
           <Clock className="w-3.5 h-3.5" />
           <span>{timeLeft(bond.end_date)}</span>
           <span className="text-zinc-700">·</span>
@@ -84,6 +84,19 @@ export default async function BondDetailPage({ params }: { params: Promise<{ id:
             <>
               <span className="text-zinc-700">·</span>
               <span>by {bond.profiles.full_name || bond.profiles.username || 'Anonymous'}</span>
+            </>
+          )}
+          {bond.soroban_tx_hash && (
+            <>
+              <span className="text-zinc-700">·</span>
+              <a 
+                href={`https://stellar.expert/explorer/testnet/tx/${bond.soroban_tx_hash}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center text-blue-400 hover:underline"
+              >
+                <ExternalLink className="w-3 h-3 mr-1" /> View on Explorer
+              </a>
             </>
           )}
         </div>

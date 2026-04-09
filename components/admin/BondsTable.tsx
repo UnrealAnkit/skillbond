@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import ProofReview from './ProofReview';
+import { ExternalLink } from 'lucide-react';
 
 interface BondsTableProps {
   bonds: any[];
@@ -78,7 +79,18 @@ export default function BondsTable({ bonds }: BondsTableProps) {
                     <tr className="hover:bg-muted/50 cursor-pointer" onClick={() => setExpandedBond(expandedBond === bond.id ? null : bond.id)}>
                       <td className="px-4 py-3 font-medium">{bond.title}</td>
                       <td className="px-4 py-3 text-xs">{bond.profiles?.email || 'Unknown'}</td>
-                      <td className="px-4 py-3">{bond.stake_amount} XLM</td>
+                      <td className="px-4 py-3">{bond.stake_amount} XLM
+                        {bond.soroban_tx_hash && (
+                          <a 
+                            href={`https://stellar.expert/explorer/testnet/tx/${bond.soroban_tx_hash}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="flex items-center text-[10px] text-blue-500 hover:underline mt-1"
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" /> View Tx
+                          </a>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-xs">
                         {new Date(bond.start_date).toLocaleDateString()} - <br/>
                         {new Date(bond.end_date).toLocaleDateString()}
