@@ -31,9 +31,8 @@ const getSorobanRpc = () => {
 }
 
 const getNetworkPassphrase = () => {
-  if (NETWORK === 'futurenet') return StellarSdk.Networks.FUTURENET
-  if (NETWORK === 'public') return StellarSdk.Networks.PUBLIC
-  return StellarSdk.Networks.TESTNET
+  // Hardcoded to Futurenet to ensure Freighter compatibility regardless of cached .env
+  return StellarSdk.Networks.FUTURENET
 }
 
 export const sorobanService = {
@@ -95,7 +94,7 @@ export const sorobanService = {
       
       // Send 5 XLM token transfer as the "claim" or "stake" instead of calling the missing contract
       const targetAddress = 'GCPL3QZRKWRL2KNEGNLE7JWWX5CXQSPI4PGYGMY5HFOYGW6BSSP4X3I4'
-      return await this.sendPayment(targetAddress, '5')
+      return await sorobanService.sendPayment(targetAddress, '5')
 
     } catch (e: any) {
       console.error(e)
