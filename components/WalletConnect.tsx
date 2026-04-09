@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { Wallet, Check } from 'lucide-react'
-import { isConnected, getPublicKey } from '@stellar/freighter-api'
+import { isConnected, requestAccess } from '@stellar/freighter-api'
 
 interface WalletConnectProps {
   onConnected?: (address: string) => void
@@ -38,7 +38,15 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
       }
 
       console.log('Connecting to Freighter...')
-      const publicKey = await getPublicKey()
+      
+      // Request access prompts the user to connect and returns their address
+      const accessResult = await requestAccess()
+      
+      if (accessResult.error) {
+        throw new Error(accessResult.error)
+      }
+      
+      const publicKey = accessResult.address
       console.log('Got public key:', publicKey)
 
       if (!publicKey) {

@@ -102,10 +102,11 @@ export const sorobanService = {
    */
   async connectWallet(): Promise<{ address: string | null; error?: string }> {
     try {
-      if (typeof window !== 'undefined' && window.freighter) {
-        // @ts-ignore — Freighter injects window.freighter
-        const publicKey = await window.freighter.getPublicKey()
-        return { address: publicKey }
+      const { isConnected, requestAccess } = await import('@stellar/freighter-api')
+      if (typeof window !== 'undefined' && await isConnected()) {
+        const accessParams = await requestAccess()
+        if (accessParams.error) return { address: null, error: accessParams.error }
+        return { address: accessParams.address || null }
       }
       return { address: null, error: 'Freighter not installed' }
     } catch (e: any) {
