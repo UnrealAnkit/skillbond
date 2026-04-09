@@ -151,3 +151,32 @@ export async function updateBondStatus(bondId: string, status: string) {
   revalidatePath('/dashboard')
   return { success: true }
 }
+
+export async function claimBondAction(bondId: string, txHash: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Not logged in')
+  }
+
+  // Update status to 'claimed', set soroban_tx_hash
+  const { error } = await supabase
+    .from('skill_bonds')
+    .update({ 
+      status: 'claimed',
+      soroban_tx_hash: txHash,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', bondId)
+    .eq('status', 'completed') // Important: Ensure it is completed
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  revalidatePath(`/bond/${bondId}`)
+  revalidatePath('/dashboard')
+
+  return { success: true }
+}

@@ -6,6 +6,7 @@ import { formatDate, timeLeft, formatXLM } from '@/lib/utils'
 import { ArrowLeft, Lock, Calendar, Users, GitBranch, ExternalLink, Clock } from 'lucide-react'
 import { JoinBondButton } from '@/components/JoinBondButton'
 import { BondActions } from '@/components/BondActions'
+import { ClaimBondButton } from '@/components/ClaimBondButton'
 
 export default async function BondDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -103,6 +104,9 @@ export default async function BondDetailPage({ params }: { params: Promise<{ id:
         )}
         {isCreator && bond.status === 'under_review' && (
           <BondActions bondId={bond.id} />
+        )}
+        {(isCreator || isParticipant) && bond.status === 'completed' && (
+          <ClaimBondButton bondId={bond.id} amount={bond.stake_amount} />
         )}
       </div>
 

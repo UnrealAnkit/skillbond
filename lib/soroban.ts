@@ -30,7 +30,9 @@ const getSorobanRpc = () => {
   return new StellarSdk.rpc.Server(RPC_URL, { allowHttp: true })
 }
 
-const getTestnetPassphrase = () => {
+const getNetworkPassphrase = () => {
+  if (NETWORK === 'futurenet') return StellarSdk.Networks.FUTURENET
+  if (NETWORK === 'public') return StellarSdk.Networks.PUBLIC
   return StellarSdk.Networks.TESTNET
 }
 
@@ -88,9 +90,78 @@ export const sorobanService = {
   async settleBond(bondId: string, outcome: 'completed' | 'failed'): Promise<SorobanResult> {
     try {
       console.log('[Soroban] settleBond:', { bondId, outcome })
-      await new Promise(r => setTimeout(r, 800))
-      return { success: true, txHash: `real_settle_${Date.now()}` }
+      
+      const { isConnected, requestAccess, signTransaction } = await import('@stellar/freighter-api')
+      
+      if (typeof window === 'undefined' || !(await isConnected())) {
+        return { success: false, error: 'Freighter not installed or not connected' }
+      }
+
+      const accessParams = await requestAccess()
+      if (accessParams.error || !accessParams.address) {
+        return { success: false, error: accessParams.error || 'Please connect your Freighter wallet' }
+      }
+
+      const publicKey = accessParams.address
+      const rpc = getSorobanRpc()
+      
+      const account = await rpc.getAccount(publicKey)
+      const NETWORK_PASSPHRASE = getNetworkPassphrase()
+      
+      const contractId = process.env.NEXT_PUBLIC_SKILLBOND_CONTRACT_ID || CONTRACT_ID
+      if (!contractId || contractId === 'placeholder') {
+        throw new Error('Contract ID is missing')
+      }
+
+      const contract = new StellarSdk.Contract(contractId)
+      
+      // We pass outcome as u32: 1 for completed, 2 for failed
+      const outcomeVal = outcome === 'completed' ? 1 : 2
+
+      const txBuilder = new StellarSdk.TransactionBuilder(account, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: NETWORK_PASSPHRASE,
+      })
+      
+      const invokeOp = contract.call('settle_bond', 
+        StellarSdk.nativeToScVal(bondId, { type: 'bytes' }),
+        StellarSdk.nativeToScVal(outcomeVal, { type: 'u32' })
+      )
+
+      txBuilder.addOperation(invokeOp)
+      txBuilder.setTimeout(30)
+      
+      const transaction = txBuilder.build()
+      
+      // Simulate transaction to get fees and footprint
+      const preparedTx = await rpc.prepareTransaction(transaction)
+      
+      const signedTx = await signTransaction(
+        preparedTx.toXDR(),
+        { networkPassphrase: NETWORK_PASSPHRASE }
+      )
+
+      if (signedTx.error || !signedTx.signedTxXdr) {
+        return { success: false, error: signedTx.error || 'Failed to sign transaction' }
+      }
+
+      const txToSubmit = StellarSdk.TransactionBuilder.fromXDR(signedTx.signedTxXdr, NETWORK_PASSPHRASE) as StellarSdk.Transaction
+      const response = await rpc.sendTransaction(txToSubmit)
+      
+      if (response.status === 'ERROR') {
+        // Wait another bit to see if we can get robust details, but mostly just return failure
+        return { success: false, error: (response as any).errorResultXdr || (response as any).errorResult || 'Transaction submission failed' }
+      }
+
+      // We wait for Soroban validation (optional, can be very fast) if we wanted block execution 
+      // but returning PENDING with txHash is often sufficient for UI UX:
+      return { 
+        success: response.status === 'PENDING',
+        txHash: response.hash 
+      }
+
     } catch (e: any) {
+      console.error(e)
       return { success: false, error: e.message }
     }
   },
@@ -138,11 +209,11 @@ export const sorobanService = {
       const Operation = StellarSdk.Operation
       const Asset = StellarSdk.Asset
       const BASE_FEE = StellarSdk.BASE_FEE
-      const TESTNET_PASSPHRASE = getTestnetPassphrase()
+      const NETWORK_PASSPHRASE = getNetworkPassphrase()
       
       const transaction = new TransactionBuilder(account, {
         fee: BASE_FEE,
-        networkPassphrase: TESTNET_PASSPHRASE,
+        networkPassphrase: NETWORK_PASSPHRASE,
       })
         .addOperation(Operation.payment({
           destination: toAddress,
@@ -154,14 +225,14 @@ export const sorobanService = {
 
       const signedTx = await signTransaction(
         transaction.toXDR(),
-        { networkPassphrase: TESTNET_PASSPHRASE }
+        { networkPassphrase: NETWORK_PASSPHRASE }
       )
 
       if (signedTx.error) {
         return { success: false, error: signedTx.error }
       }
 
-      const txToSubmit = StellarSdk.TransactionBuilder.fromXDR(signedTx.signedTxXdr, TESTNET_PASSPHRASE) as StellarSdk.Transaction;
+      const txToSubmit = StellarSdk.TransactionBuilder.fromXDR(signedTx.signedTxXdr, NETWORK_PASSPHRASE) as StellarSdk.Transaction;
       const response = await rpc.sendTransaction(txToSubmit)
       
       // We might need to wait for transaction to process to get true success,
