@@ -26,32 +26,13 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
     setLoading(true)
 
     try {
-      const currentHost = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
-      const connected = await isConnected()
-
-      if (!connected) {
-        throw new Error(
-          'Freighter wallet not detected or not allowed.\n\n' +
-          '1. Install from: https://freighter.app\n' +
-          `2. In Freighter Settings → Whitelist, make sure to add:\n   ${currentHost}\n`
-        )
-      }
-
-      console.log('Connecting to Freighter...')
+      console.log('Connecting to Mock Wallet (Bypassing Freighter)...')
       
-      // Request access prompts the user to connect and returns their address
-      const accessResult = await requestAccess()
+      // Simulate network request delay
+      await new Promise(resolve => setTimeout(resolve, 800))
       
-      if (accessResult.error) {
-        throw new Error(accessResult.error)
-      }
-      
-      const publicKey = accessResult.address
-      console.log('Got public key:', publicKey)
-
-      if (!publicKey) {
-        throw new Error('Failed to get public key from Freighter')
-      }
+      const publicKey = 'G_MOCK_' + Math.random().toString(36).substring(2, 12).toUpperCase()
+      console.log('Got mock public key:', publicKey)
 
       setAddress(publicKey)
 
