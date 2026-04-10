@@ -58,7 +58,7 @@ export async function getUsers() {
     .from('profiles')
     .select(`
       id,
-      email,
+      username,
       wallet_address,
       created_at,
       skill_bonds!skill_bonds_creator_id_fkey(count),
@@ -73,6 +73,7 @@ export async function getUsers() {
 
   return users.map(user => ({
     ...user,
+    email: user.username || `User_${user.id.substring(0,6)}`,
     bondsCreated: user.skill_bonds[0]?.count || 0,
     bondsJoined: user.bond_participants[0]?.count || 0,
   }));
@@ -86,21 +87,23 @@ export async function getBondsWithDetails() {
     .from('skill_bonds')
     .select(`
       *,
-      profiles!skill_bonds_creator_id_fkey(email),
+      profiles!skill_bonds_creator_id_fkey(username),
       bond_participants(
         user_id,
         status,
         joined_at,
-        payout_status,
-        profiles(email, wallet_address)
+        profiles(username, wallet_address)
       ),
       proof_submissions(
         id,
-        user_id,
-        proof_url,
-        notes,
+        submitter_id,
+        proof_type,
+        content,
+        file_url,
+        link_url,
+        status,
         submitted_at,
-        profiles(email)
+        profiles(username)
       )
     `)
     .order('created_at', { ascending: false });
@@ -110,7 +113,30 @@ export async function getBondsWithDetails() {
     return [];
   }
 
-  return bonds;
+  return bonds.map(bond => ({
+    ...bond,
+    profiles: {
+      ...bond.profiles,
+      email: bond.profiles?.username || `User_${bond.creator_id?.substring(0,6)}`
+    },
+    bond_participants: bond.bond_participants?.map((participant: any) => ({
+      ...participant,
+      payout_status: 'n/a',
+      profiles: {
+        ...participant.profiles,
+        email: participant.profiles?.username || `User_${participant.user_id?.substring(0,6)}`
+      }
+    })),
+    proof_submissions: bond.proof_submissions?.map((submission: any) => ({
+      ...submission,
+      proof_url: submission.link_url || submission.file_url,
+      notes: submission.content || submission.reviewer_notes,
+      profiles: {
+        ...submission.profiles,
+        email: submission.profiles?.username || `User_${submission.submitter_id?.substring(0,6)}`
+      }
+    }))
+  }));
 }
 
 export async function updateBondStatus(bondId: string, status: 'completed' | 'failed') {
