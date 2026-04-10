@@ -164,13 +164,21 @@ export const sorobanService = {
       }
 
       const txToSubmit = StellarSdk.TransactionBuilder.fromXDR(signedTx.signedTxXdr, NETWORK_PASSPHRASE) as StellarSdk.Transaction;
-      const response = await rpc.sendTransaction(txToSubmit)
       
-      // We might need to wait for transaction to process to get true success,
-      // but returning the pending txHash is good enough for UX
-      return {
-        success: response.status === 'PENDING',
-        txHash: response.hash,
+      // Fallback to Horizon for standard payments to get better error messages
+      try {
+        const horizon = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
+        const horizonResponse = await horizon.submitTransaction(txToSubmit);
+        return {
+          success: horizonResponse.successful,
+          txHash: horizonResponse.hash,
+          error: horizonResponse.successful ? undefined : 'Horizon Submisson Failed'
+        }
+      } catch (err: any) {
+         return {
+           success: false,
+           error: err?.response?.data?.extras?.result_codes?.transaction || err.message
+         }
       }
     } catch (e: any) {
       return { success: false, error: e.message }
