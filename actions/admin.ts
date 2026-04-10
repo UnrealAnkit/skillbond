@@ -1,8 +1,15 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+
+// Admin client strictly for server actions bypassing RLS to access auth.users
+const supabaseAdmin = createSupabaseClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function checkAdmin() {
   const supabase = await createClient();
@@ -71,9 +78,13 @@ export async function getUsers() {
     return [];
   }
 
+  // Get real emails from auth system
+  const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
+  const emailMap = new Map(authData?.users.map(u => [u.id, u.email]) || []);
+
   return users.map(user => ({
     ...user,
-    email: user.username || `User_${user.id.substring(0,6)}`,
+    email: emailMap.get(user.id) || user.username || `User_${user.id.substring(0,6)}`,
     bondsCreated: user.skill_bonds[0]?.count || 0,
     bondsJoined: user.bond_participants[0]?.count || 0,
   }));
@@ -113,18 +124,22 @@ export async function getBondsWithDetails() {
     return [];
   }
 
+  // Get real emails for display
+  const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
+  const emailMap = new Map(authData?.users.map(u => [u.id, u.email]) || []);
+
   return bonds.map(bond => ({
     ...bond,
     profiles: {
       ...bond.profiles,
-      email: bond.profiles?.username || `User_${bond.creator_id?.substring(0,6)}`
+      email: emailMap.get(bond.creator_id) || bond.profiles?.username || `User_${bond.creator_id?.substring(0,6)}`
     },
     bond_participants: bond.bond_participants?.map((participant: any) => ({
       ...participant,
       payout_status: 'n/a',
       profiles: {
         ...participant.profiles,
-        email: participant.profiles?.username || `User_${participant.user_id?.substring(0,6)}`
+        email: emailMap.get(participant.user_id) || participant.profiles?.username || `User_${participant.user_id?.substring(0,6)}`
       }
     })),
     proof_submissions: bond.proof_submissions?.map((submission: any) => ({
@@ -133,7 +148,7 @@ export async function getBondsWithDetails() {
       notes: submission.content || submission.reviewer_notes,
       profiles: {
         ...submission.profiles,
-        email: submission.profiles?.username || `User_${submission.submitter_id?.substring(0,6)}`
+        email: emailMap.get(submission.submitter_id) || submission.profiles?.username || `User_${submission.submitter_id?.substring(0,6)}`
       }
     }))
   }));
