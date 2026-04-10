@@ -9,14 +9,17 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { BOND_CATEGORIES } from '@/lib/utils'
-import { Lock, AlertCircle } from 'lucide-react'
+import { Lock, AlertCircle, Wallet } from 'lucide-react'
 import { sorobanService } from '@/lib/soroban'
+import { useUser } from '@/hooks/useUser'
+import { WalletConnect } from '@/components/WalletConnect'
 
 // Treasury escrow
 const ESCROW_ADDRESS = 'GCVB4L2OU24RGZQH4YEV3WDKKZS4ATEBFONJFDP7GUWXKQAAQV6P2K2P'
 
 export default function CreateBondPage() {
   const router = useRouter()
+  const { profile, loading: userLoading } = useUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({
@@ -68,6 +71,29 @@ export default function CreateBondPage() {
     })
     if (result.error) { setError(result.error); setLoading(false); return }
     router.push(`/bond/${result.data?.id}`)
+  }
+
+  if (userLoading) {
+    return <div className="max-w-2xl mx-auto py-20 text-center text-zinc-500">Loading account data...</div>;
+  }
+
+  if (!profile?.wallet_address) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-8 mt-10">
+        <div className="rounded-2xl border border-white/10 bg-[#0D1117] p-10 text-center space-y-6 flex flex-col items-center">
+          <div className="p-4 bg-muted/20 border rounded-full w-fit">
+            <Wallet className="w-10 h-10 text-zinc-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold tracking-tight">Wallet Required</h2>
+            <p className="text-zinc-400 mt-2 max-w-sm mx-auto">
+              You must have a decentralized wallet connected to your account in order to create a new SkillBond and lock stakes.
+            </p>
+          </div>
+          <WalletConnect onConnected={() => window.location.reload()} />
+        </div>
+      </div>
+    );
   }
 
   return (
