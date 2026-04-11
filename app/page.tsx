@@ -17,8 +17,7 @@ export default function LandingPage() {
           <span className="font-display font-bold text-lg tracking-tight">SkillBond</span>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/login" className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors px-4 py-2">Sign in</Link>
-          <Link href="/signup" className="text-sm font-semibold bg-[#00E5A0] text-[#080B0F] px-5 py-2 rounded-xl hover:opacity-90 transition-all">Get started</Link>
+          <Link href="/login" className="text-sm font-semibold bg-[#00E5A0] text-[#080B0F] px-5 py-2 rounded-xl hover:opacity-90 transition-all">Connect Wallet</Link>
         </div>
       </nav>
 
@@ -34,8 +33,8 @@ export default function LandingPage() {
           SkillBond locks funds in smart contracts tied to verifiable skill milestones. Complete your challenge, unlock your stake. Fail, and the community wins.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/signup" className="inline-flex items-center gap-2 bg-[#00E5A0] text-[#080B0F] font-display font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-all text-base">
-            Create your first bond <ArrowRight className="w-4 h-4" />
+          <Link href="/login" className="inline-flex items-center gap-2 bg-[#00E5A0] text-[#080B0F] font-display font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-all text-base">
+            Connect to Create <ArrowRight className="w-4 h-4" />
           </Link>
           <Link href="/explore" className="inline-flex items-center gap-2 border border-white/10 text-zinc-300 font-semibold px-8 py-3.5 rounded-xl hover:border-white/20 hover:bg-white/5 transition-all text-base">
             Explore active bonds
@@ -82,8 +81,8 @@ export default function LandingPage() {
           <Award className="w-10 h-10 text-[#00E5A0] mx-auto mb-4" />
           <h2 className="font-display font-bold text-3xl mb-3 tracking-tight">Ready to commit?</h2>
           <p className="text-zinc-400 text-sm mb-8">Put your XLM where your goals are.</p>
-          <Link href="/signup" className="inline-flex items-center gap-2 bg-[#00E5A0] text-[#080B0F] font-display font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-all">
-            Create a SkillBond <ArrowRight className="w-4 h-4" />
+          <Link href="/login" className="inline-flex items-center gap-2 bg-[#00E5A0] text-[#080B0F] font-display font-bold px-8 py-3.5 rounded-xl hover:opacity-90 transition-all">
+            Connect to Start <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

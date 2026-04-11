@@ -58,20 +58,52 @@ export function WalletConnect({ onConnected }: WalletConnectProps) {
         throw new Error('Failed to get public key from Freighter')
       }
 
-      setAddress(publicKey)
+      // Let's do auth before setting UI address
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (!user) {
+        // If not logged in, try to sign up or sign in using the wallet address
+        const email = `${publicKey.toLowerCase()}@skillbond.app`
+        const password = `${publicKey}#Sb` // Simple derived password for hackathon MVP
 
-      // Save to profile
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+        let { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        })
+
+        if (signInError) {
+          // If login fails, try signing up
+          console.log('User not found, attempting to create account...')
+          const { error: signUpError } = await supabase.auth.signUp({
+            email,
+            password
+          })
+
+          if (signUpError) {
+            console.error('Signup error:', signUpError)
+            throw new Error(`Could not create an account for this wallet: ${signUpError.message}`)
+          }
+          
+          // Try sign in again after sign up
+          await supabase.auth.signInWithPassword({
+            email,
+            password
+          })
+        }
+      }
+
+      // Ensure profile has the wallet address 
+      const { data: session } = await supabase.auth.getSession()
+      if (session?.session?.user) {
         try {
           await supabase.from('profiles')
             .update({ wallet_address: publicKey })
-            .eq('id', user.id)
+            .eq('id', session.session.user.id)
         } catch (e: any) {
           console.log('Profile update skipped:', e.message)
         }
       }
 
+      setAddress(publicKey)
       console.log('Wallet connected successfully:', publicKey)
       onConnected?.(publicKey)
     } catch (error: any) {

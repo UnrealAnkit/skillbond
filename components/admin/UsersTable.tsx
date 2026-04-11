@@ -46,15 +46,23 @@ export default function UsersTable({ users }: UsersTableProps) {
                   <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">No users found.</td>
                 </tr>
               ) : (
-                filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-muted/50">
-                    <td className="px-4 py-3 font-medium">{user.email || 'N/A'}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{user.wallet_address || 'Unlinked'}</td>
-                    <td className="px-4 py-3">{new Date(user.created_at).toLocaleDateString()}</td>
-                    <td className="px-4 py-3 text-right">{user.bondsCreated}</td>
-                    <td className="px-4 py-3 text-right">{user.bondsJoined}</td>
-                  </tr>
-                ))
+                filteredUsers.map((user) => {
+                  const isWeb3User = user.email?.includes('@skillbond.app');
+                  const displayEmail = isWeb3User ? 'Web3 Login' : (user.email || 'N/A');
+                  return (
+                    <tr key={user.id} className="hover:bg-muted/50">
+                      <td className={`px-4 py-3 font-medium ${isWeb3User ? 'text-blue-400' : ''}`}>
+                        {isWeb3User ? (
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> {displayEmail}</span>
+                        ) : displayEmail}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs">{user.wallet_address || 'Unlinked'}</td>
+                      <td className="px-4 py-3">{new Date(user.created_at).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 text-right">{user.bondsCreated}</td>
+                      <td className="px-4 py-3 text-right">{user.bondsJoined}</td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>

@@ -64,11 +64,11 @@ export function Navbar() {
             <div className="hidden sm:flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-white/5 border border-white/7 flex-shrink-0">
               <div className="w-4 h-4 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-[9px] font-bold text-accent">
-                  {(profile?.full_name || user.email || 'U')[0].toUpperCase()}
+                  {(profile?.full_name || profile?.wallet_address || user.email || 'W')[0].toUpperCase()}
                 </span>
               </div>
               <span className="text-xs text-zinc-300 truncate max-w-[90px]">
-                {profile?.full_name || user.email?.split('@')[0]}
+                {profile?.full_name || profile?.wallet_address?.slice(0, 6) + '...' || user.email?.split('@')[0]}
               </span>
             </div>
           )}
