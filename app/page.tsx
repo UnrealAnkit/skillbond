@@ -1,7 +1,17 @@
 import Link from 'next/link'
 import { ArrowRight, Lock, Zap, Shield, GitBranch, TrendingUp, Award } from 'lucide-react'
 
-export default function LandingPage() {
+import { createClient } from '@/lib/supabase/server'
+import { LiveStats } from '@/components/LiveStats'
+
+export default async function LandingPage() {
+  const supabase = await createClient()
+
+  const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
+  const { count: bondsCount } = await supabase.from('skill_bonds').select('*', { count: 'exact', head: true })
+  const { count: completedCount } = await supabase.from('skill_bonds').select('*', { count: 'exact', head: true }).eq('status', 'completed')
+  const { count: activeCount } = await supabase.from('skill_bonds').select('*', { count: 'exact', head: true }).in('status', ['active', 'under_review'])
+
   return (
     <div className="min-h-screen bg-[#080B0F] text-zinc-100 overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -43,14 +53,12 @@ export default function LandingPage() {
       </section>
 
       <section className="relative z-10 max-w-4xl mx-auto px-6 pb-20">
-        <div className="grid grid-cols-3 gap-4">
-          {[['100%','On-chain settlement'],['XLM','Stellar native staking'],['0','Middlemen involved']].map(([v,l]) => (
-            <div key={l} className="text-center p-6 rounded-2xl border border-white/7 bg-[#0D1117]">
-              <div className="font-display font-bold text-3xl text-[#00E5A0] mb-1">{v}</div>
-              <div className="text-xs text-zinc-500">{l}</div>
-            </div>
-          ))}
-        </div>
+        <LiveStats initialStats={{
+          usersCount: usersCount || 0,
+          bondsCount: bondsCount || 0,
+          completedCount: completedCount || 0,
+          activeCount: activeCount || 0,
+        }} />
       </section>
 
       <section className="relative z-10 max-w-5xl mx-auto px-6 pb-24">
@@ -66,7 +74,6 @@ export default function LandingPage() {
             <div key={String(title)} className="relative p-5 rounded-2xl border border-white/7 bg-[#0D1117] hover:border-white/14 transition-colors">
               <div className="absolute top-4 right-4 text-2xl font-display font-bold text-white/5 select-none">{String(i+1).padStart(2,'0')}</div>
               <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mb-4 ${color}`}>
-                {/* @ts-ignore */}
                 <Icon className="w-5 h-5" />
               </div>
               <h3 className="font-display font-semibold text-sm mb-1.5">{String(title)}</h3>
