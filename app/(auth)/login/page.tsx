@@ -18,11 +18,11 @@ export default function LoginPage() {
       <div className="w-full max-w-sm relative z-10 text-center">
         <Link href="/" className="inline-flex items-center gap-2 group mb-4">
           <Image
-            src="/logo.png"
+            src="/logo-mark.png"
             alt="SkillBond Logo"
-            width={320}
-            height={160}
-            className="h-12 w-auto sm:h-14"
+            width={120}
+            height={120}
+            className="h-12 w-12 sm:h-14 sm:w-14"
             priority
           />
         </Link>

@@ -32,11 +32,8 @@ export function Navbar() {
     <nav className="sticky top-0 z-40 w-full border-b border-white/7 bg-[#080B0F]/90 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex h-14 items-center justify-between">
         {/* Logo */}
-        <Link href="/dashboard" className="flex items-center gap-2 group flex-shrink-0">
-          <div className="w-7 h-7 flex items-center justify-center transition-all">
-            <Image src="/logo.png" alt="SkillBond Logo" width={28} height={28} className="w-full h-full object-contain" priority />
-          </div>
-          <span className="font-display font-bold text-base tracking-tight hidden sm:inline">SkillBond</span>
+        <Link href="/dashboard" className="flex items-center flex-shrink-0">
+          <Image src="/logo-mark.png" alt="SkillBond Logo" width={40} height={40} className="h-9 w-9 sm:h-10 sm:w-10 object-contain" priority />
         </Link>
 
         {/* Desktop nav */}
