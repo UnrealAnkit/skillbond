@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Lock, Zap, Shield, GitBranch, TrendingUp, Award } from 'lucide-react'
 
@@ -21,8 +22,8 @@ export default async function LandingPage() {
 
       <nav className="relative z-10 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[#00E5A0] flex items-center justify-center shadow-lg">
-            <Zap className="w-4 h-4 text-[#080B0F]" strokeWidth={2.5} />
+          <div className="w-8 h-8 flex items-center justify-center">
+            <Image src="/logo.png" alt="SkillBond Logo" width={32} height={32} className="w-full h-full object-contain" priority />
           </div>
           <span className="font-display font-bold text-lg tracking-tight">SkillBond</span>
         </div>

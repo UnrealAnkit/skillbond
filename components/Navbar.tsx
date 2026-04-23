@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -7,7 +8,7 @@ import { useUser } from '@/hooks/useUser'
 import { Button } from '@/components/ui/button'
 import { WalletConnect } from '@/components/WalletConnect'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Compass, Plus, MessageSquare, LogOut, Zap } from 'lucide-react'
+import { LayoutDashboard, Compass, Plus, MessageSquare, LogOut } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -32,8 +33,8 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex h-14 items-center justify-between">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center gap-2 group flex-shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center group-hover:shadow-lg group-hover:shadow-accent/30 transition-all">
-            <Zap className="w-4 h-4 text-[#080B0F]" strokeWidth={2.5} />
+          <div className="w-7 h-7 flex items-center justify-center transition-all">
+            <Image src="/logo.png" alt="SkillBond Logo" width={28} height={28} className="w-full h-full object-contain" priority />
           </div>
           <span className="font-display font-bold text-base tracking-tight hidden sm:inline">SkillBond</span>
         </Link>
