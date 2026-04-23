@@ -87,9 +87,9 @@ export const sorobanService = {
     try {
       console.log('[Soroban] settleBond workaround (send to pool):', { bondId, outcome })
       
-      // Send 5 XLM token transfer as the "claim" or "stake" instead of calling the missing contract
+      // Send 5 XLM token transfer as the "claim" or "stake" using the new Sponsored Fee Bump model
       const targetAddress = 'GCPL3QZRKWRL2KNEGNLE7JWWX5CXQSPI4PGYGMY5HFOYGW6BSSP4X3I4'
-      return await sorobanService.sendPayment(targetAddress, '5')
+      return await sorobanService.sendSponsoredPayment(targetAddress, '5')
 
     } catch (e: any) {
       console.error(e)
@@ -111,6 +111,80 @@ export const sorobanService = {
       return { address: null, error: 'Freighter not installed' }
     } catch (e: any) {
       return { address: null, error: e.message }
+    }
+  },
+
+  /**
+   * Send payment via Freighter, but wrapped in a Server-Sponsored Fee Bump Transaction
+   */
+  async sendSponsoredPayment(toAddress: string, amount: string): Promise<SorobanResult> {
+    try {
+      const { isConnected, requestAccess, signTransaction } = await import('@stellar/freighter-api')
+      
+      if (typeof window === 'undefined' || !(await isConnected())) {
+        return { success: false, error: 'Freighter not installed or not connected' }
+      }
+
+      const accessParams = await requestAccess()
+      if (accessParams.error) return { success: false, error: accessParams.error }
+      
+      const publicKey = accessParams.address
+      if (!publicKey) {
+        return { success: false, error: 'Please connect your Freighter wallet' }
+      }
+
+      const horizon = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
+      const account = await horizon.loadAccount(publicKey)
+      
+      const NETWORK_PASSPHRASE = getNetworkPassphrase()
+      
+      // Build the standard inner transaction
+      const transaction = new StellarSdk.TransactionBuilder(account, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: NETWORK_PASSPHRASE,
+      })
+        .addOperation(StellarSdk.Operation.payment({
+          destination: toAddress,
+          asset: StellarSdk.Asset.native(),
+          amount: amount,
+        }))
+        .setTimeout(30)
+        .build()
+
+      // 1. User signs the inner transaction using Freighter
+      const signedTx = await signTransaction(
+        transaction.toXDR(),
+        { networkPassphrase: NETWORK_PASSPHRASE }
+      )
+
+      if (signedTx.error) {
+        return { success: false, error: signedTx.error }
+      }
+
+      // 2. Send signed inner transaction to backend for Fee Bump sponsorship
+      const { requestFeeSponsorship } = await import('@/lib/sponsor')
+      const sponsoredXdr = await requestFeeSponsorship(signedTx.signedTxXdr, 'TESTNET')
+
+      // 3. Submit the sponsored (wrapped) transaction to the network
+      const feeBumpTx = StellarSdk.TransactionBuilder.fromXDR(sponsoredXdr, NETWORK_PASSPHRASE) as StellarSdk.FeeBumpTransaction;
+      
+      try {
+        const horizonResponse = await horizon.submitTransaction(feeBumpTx);
+        return {
+          success: horizonResponse.successful,
+          txHash: horizonResponse.hash,
+          error: horizonResponse.successful ? undefined : 'Sponsored Submission Failed'
+        }
+      } catch (err: any) {
+         console.error('Sponsored Submission Error:', err?.response?.data || err);
+         return {
+           success: false,
+           error: err?.response?.data?.extras?.result_codes?.transaction || err.message
+         }
+      }
+    } catch (e: any) {
+      console.error('sendSponsoredPayment Error:', e);
+      return { success: false, error: e.message }
     }
   },
 

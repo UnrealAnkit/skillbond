@@ -33,7 +33,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex h-14 items-center justify-between">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center flex-shrink-0">
-          <Image src="/logo-mark.png" alt="SkillBond Logo" width={40} height={40} className="h-9 w-9 sm:h-10 sm:w-10 object-contain" priority />
+          <Image src="/skillbonglogosvg.svg" alt="SkillBond Logo" width={140} height={48} className="h-8 w-auto sm:h-9 object-contain" unoptimized priority />
         </Link>
 
         {/* Desktop nav */}

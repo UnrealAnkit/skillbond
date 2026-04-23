@@ -48,15 +48,21 @@ export function ClaimBondButton({ bondId, amount }: ClaimBondButtonProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <Button 
-        onClick={handleClaim} 
-        disabled={loading}
-        className="bg-[#00E5A0] text-[#080B0F] font-bold hover:opacity-90 transition-opacity"
-      >
-        {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-        Claim your {amount} XLM
-      </Button>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        <Button 
+          onClick={handleClaim} 
+          disabled={loading}
+          className="bg-[#00E5A0] text-[#080B0F] font-bold hover:opacity-90 transition-opacity"
+        >
+          {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          Claim your {amount} XLM
+        </Button>
+        <span className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-sm">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Gas Sponsored
+        </span>
+      </div>
       {error && <p className="text-red-500 text-xs">{error}</p>}
     </div>
   )

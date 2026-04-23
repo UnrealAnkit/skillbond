@@ -18,9 +18,9 @@ export function JoinBondButton({ bondId, requiredStake }: { bondId: string, requ
     setLoading(true)
     setError(null)
     
-    // 1. Process payment via Freighter first
+    // 1. Process payment via Freighter first (Gasless via Fee Bump Sponsorship)
     if (requiredStake > 0) {
-      const txResult = await sorobanService.sendPayment(ESCROW_ADDRESS, requiredStake.toString())
+      const txResult = await sorobanService.sendSponsoredPayment(ESCROW_ADDRESS, requiredStake.toString())
       if (!txResult.success) {
         setError(txResult.error || 'Transaction failed or rejected')
         setLoading(false)
@@ -40,15 +40,21 @@ export function JoinBondButton({ bondId, requiredStake }: { bondId: string, requ
   }
 
   return (
-    <div className="space-y-1">
-      <button
-        onClick={handleJoin}
-        disabled={loading}
-        className="inline-flex items-center gap-2 bg-[#00E5A0] text-[#080B0F] font-display font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition-all text-sm shadow-lg shadow-[#00E5A0]/20 disabled:opacity-50"
-      >
-        <Lock className="w-4 h-4" />
-        {loading ? 'Processing Transaction...' : `Stake ${requiredStake} XLM to Join`}
-      </button>
+    <div className="space-y-3">
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        <button
+          onClick={handleJoin}
+          disabled={loading}
+          className="inline-flex items-center gap-2 bg-[#00E5A0] text-[#080B0F] font-display font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition-all text-sm shadow-lg shadow-[#00E5A0]/20 disabled:opacity-50"
+        >
+          <Lock className="w-4 h-4" />
+          {loading ? 'Processing Transaction...' : `Stake ${requiredStake} XLM to Join`}
+        </button>
+        <span className="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold tracking-wide flex items-center gap-1.5 shadow-sm">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Gas Sponsored
+        </span>
+      </div>
       {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   )

@@ -56,7 +56,6 @@ export default function SubmitProofPage() {
 
     if (insertErr) { setError(insertErr.message); setLoading(false); return }
 
-    // Mark bond as under review
     await supabase
       .from('skill_bonds')
       .update({ status: 'under_review', updated_at: new Date().toISOString() })

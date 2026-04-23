@@ -152,12 +152,27 @@ export async function updateBondStatus(bondId: string, status: string) {
   return { success: true }
 }
 
+import { logUserActivity } from '@/lib/logger';
+
 export async function claimBondAction(bondId: string, txHash: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     throw new Error('Not logged in')
+  }
+
+  // Prevent double claiming
+  const { data: participantData } = await supabase
+    .from('bond_participants')
+    .select('claimed')
+    .eq('user_id', user.id)
+    .eq('bond_id', bondId)
+    .single();
+
+  if (participantData?.claimed) {
+    await logUserActivity(user.id, 'ERROR_DOUBLE_CLAIM_ATTEMPT', 'bond', bondId);
+    throw new Error('Funds have already been claimed.');
   }
 
   // Update status to 'claimed', set soroban_tx_hash
@@ -172,8 +187,18 @@ export async function claimBondAction(bondId: string, txHash: string) {
     .eq('status', 'completed') // Important: Ensure it is completed
 
   if (error) {
+    await logUserActivity(user.id, 'ERROR_CLAIM_FAILED', 'bond', bondId, { error: error.message });
     throw new Error(error.message)
   }
+
+  // Mark as claimed for the participant
+  await supabase
+    .from('bond_participants')
+    .update({ claimed: true })
+    .eq('user_id', user.id)
+    .eq('bond_id', bondId);
+
+  await logUserActivity(user.id, 'CLAIM_BOND', 'bond', bondId, { txHash });
 
   revalidatePath(`/bond/${bondId}`)
   revalidatePath('/dashboard')

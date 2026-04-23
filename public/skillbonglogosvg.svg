@@ -1,0 +1,41 @@
+<svg width="240" height="90" viewBox="0 0 240 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Gradient -->
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="90" y2="90">
+      <stop offset="0%" stop-color="#00FFA3"></stop>
+      <stop offset="100%" stop-color="#00C2FF"></stop>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon -->
+  <g transform="translate(10,10)">
+    
+    <!-- Hex / Bond Shape -->
+    <path d="M35 5L55 15V35L35 45L15 35V15L35 5Z" stroke="url(#g1)" stroke-width="2.5" fill="rgba(0,255,163,0.05)"></path>
+
+    <!-- Inner Lock Shape -->
+    <rect x="25" y="22" width="20" height="16" rx="4" stroke="url(#g1)" stroke-width="2" fill="none"></rect>
+
+    <!-- Lock Arc -->
+    <path d="M28 22C28 16 32 13 35 13C38 13 42 16 42 22" stroke="url(#g1)" stroke-width="2" fill="none"></path>
+
+    <!-- Checkmark -->
+    <path d="M28 30L33 34L42 25" stroke="#00FFA3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+
+  </g>
+
+  <!-- Brand Text -->
+  <text x="80" y="40" fill="#F9FAFB" font-size="22" font-family="Inter, sans-serif" font-weight="600">
+    Skill
+  </text>
+  <text x="135" y="40" fill="url(#g1)" font-size="22" font-family="Inter, sans-serif" font-weight="600">
+    Bond
+  </text>
+
+  <!-- Tagline -->
+  <text x="80" y="62" fill="#6B7280" font-size="11" font-family="Inter, sans-serif">
+    Stake • Prove • Unlock
+  </text>
+
+</svg>

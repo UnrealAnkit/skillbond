@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import OverviewStats from './OverviewStats';
 import UsersTable from './UsersTable';
 import BondsTable from './BondsTable';
+import UserExportButton from './UserExportButton';
 
 interface AdminDashboardProps {
   stats: any;
@@ -16,6 +18,19 @@ export default function AdminDashboard({ stats, users, bonds }: AdminDashboardPr
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Admin Console</h1>
+        <div className="flex gap-4">
+          <Link 
+            href="/admin/metrics"
+            className="px-4 py-2 border rounded-md hover:bg-neutral-100 flex items-center justify-center text-sm font-medium"
+          >
+            Advanced Metrics
+          </Link>
+          <UserExportButton />
+        </div>
+      </div>
+
       <div className="flex space-x-4 border-b pb-2">
         <button
           onClick={() => setActiveTab('overview')}
