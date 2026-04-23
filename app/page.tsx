@@ -22,10 +22,14 @@ export default async function LandingPage() {
 
       <nav className="relative z-10 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 flex items-center justify-center">
-            <Image src="/logo.png" alt="SkillBond Logo" width={32} height={32} className="w-full h-full object-contain" priority />
-          </div>
-          <span className="font-display font-bold text-lg tracking-tight">SkillBond</span>
+          <Image
+            src="/logo.png"
+            alt="SkillBond Logo"
+            width={320}
+            height={160}
+            className="h-10 w-auto sm:h-12"
+            priority
+          />
         </div>
         <div className="flex items-center gap-3">
           <Link href="/login" className="text-sm font-semibold bg-[#00E5A0] text-[#080B0F] px-5 py-2 rounded-xl hover:opacity-90 transition-all">Connect Wallet</Link>

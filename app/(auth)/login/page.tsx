@@ -17,10 +17,14 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#080B0F] flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm relative z-10 text-center">
         <Link href="/" className="inline-flex items-center gap-2 group mb-4">
-          <div className="w-10 h-10 flex items-center justify-center">
-            <Image src="/logo.png" alt="SkillBond Logo" width={40} height={40} className="w-full h-full object-contain" priority />
-          </div>
-          <span className="font-display font-bold text-xl tracking-tight">SkillBond</span>
+          <Image
+            src="/logo.png"
+            alt="SkillBond Logo"
+            width={320}
+            height={160}
+            className="h-12 w-auto sm:h-14"
+            priority
+          />
         </Link>
         <h1 className="text-2xl font-bold mb-2">Connect Wallet</h1>
         <p className="text-zinc-400 mb-8">Access your account or create a new one securely with Web3.</p>
