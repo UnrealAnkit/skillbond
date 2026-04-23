@@ -27,7 +27,7 @@ export default async function LandingPage() {
             alt="SkillBond Logo"
             width={320}
             height={320}
-            className="h-12 w-auto sm:h-14"
+            className="h-14 w-auto sm:h-16"
             unoptimized
             priority
           />

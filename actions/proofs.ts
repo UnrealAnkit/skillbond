@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { logUserActivity } from '@/lib/logger'
 
 export async function submitProof(formData: FormData) {
   const supabase = await createClient()
@@ -27,17 +28,28 @@ export async function submitProof(formData: FormData) {
     fileUrl = uploadData.path
   }
 
-  const { error } = await supabase.from('proof_submissions').insert({
-    bond_id: bondId,
-    submitter_id: user.id,
-    proof_type: proofType,
-    content: content || null,
-    link_url: linkUrl || null,
-    file_url: fileUrl,
-    status: 'pending',
-  })
+  const { data: submission, error } = await supabase
+    .from('proof_submissions')
+    .insert({
+      bond_id: bondId,
+      submitter_id: user.id,
+      proof_type: proofType,
+      content: content || null,
+      link_url: linkUrl || null,
+      file_url: fileUrl,
+      status: 'pending',
+    })
+    .select('id')
+    .single()
 
   if (error) return { error: error.message }
+
+  await logUserActivity(user.id, 'SUBMIT_PROOF', 'proof_submission', submission.id, {
+    bond_id: bondId,
+    proof_type: proofType,
+    has_file: Boolean(fileUrl),
+    has_link: Boolean(linkUrl),
+  })
 
   // Mark bond as under review
   await supabase

@@ -3,8 +3,21 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+type MetricsResponse = {
+  totalUsers: number;
+  dau: number;
+  transactions24h: number;
+  transactions30d: number;
+  totalTransactions: number;
+  retention7d: number;
+  totalXlmStaked: number;
+  activeBonds: number;
+  completedBonds: number;
+  failedBonds: number;
+};
+
 export default function MetricsDashboard() {
-  const [metrics, setMetrics] = useState<any>(null);
+  const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,8 +42,24 @@ export default function MetricsDashboard() {
         <CardContent><p className="text-2xl font-bold">{metrics.totalUsers}</p></CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Active Users (24h)</CardTitle></CardHeader>
-        <CardContent><p className="text-2xl font-bold">{metrics.activeUsers24h}</p></CardContent>
+        <CardHeader><CardTitle>DAU (24h)</CardTitle></CardHeader>
+        <CardContent><p className="text-2xl font-bold">{metrics.dau}</p></CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>Transactions (24h)</CardTitle></CardHeader>
+        <CardContent><p className="text-2xl font-bold">{metrics.transactions24h}</p></CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>Transactions (30d)</CardTitle></CardHeader>
+        <CardContent><p className="text-2xl font-bold">{metrics.transactions30d}</p></CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>Total Transactions</CardTitle></CardHeader>
+        <CardContent><p className="text-2xl font-bold">{metrics.totalTransactions}</p></CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>7d Retention</CardTitle></CardHeader>
+        <CardContent><p className="text-2xl font-bold">{metrics.retention7d}%</p></CardContent>
       </Card>
       <Card>
         <CardHeader><CardTitle>Total XLM Staked</CardTitle></CardHeader>

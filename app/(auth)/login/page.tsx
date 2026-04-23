@@ -22,7 +22,7 @@ export default function LoginPage() {
             alt="SkillBond Logo"
             width={320}
             height={320}
-            className="h-28 w-auto sm:h-32"
+            className="h-36 w-auto sm:h-40"
             unoptimized
             priority
           />

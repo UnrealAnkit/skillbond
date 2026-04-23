@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getPlatformMetrics } from '@/lib/metrics';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -15,27 +16,9 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized: Admin only' }, { status: 403 });
     }
 
-    const [usersCount, activeUsers, bondsStats] = await Promise.all([
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('activity_logs').select('*', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 86400000).toISOString()),
-      supabase.from('skill_bonds').select('status, amount_staked')
-    ]);
+    const metrics = await getPlatformMetrics(supabase);
 
-    const bonds = bondsStats.data || [];
-    const completed = bonds.filter(b => b.status === 'completed').length;
-    const failed = bonds.filter(b => b.status === 'failed').length;
-    const active = bonds.filter(b => b.status === 'active').length;
-    const stakedSum = bonds.reduce((acc, curr) => acc + Number(curr.amount_staked || 0), 0);
-
-    return NextResponse.json({
-      totalUsers: usersCount.count || 0,
-      activeUsers24h: activeUsers.count || 0, // If table is missing, it will safely be 0
-      totalBonds: bonds.length,
-      activeBonds: active,
-      completedBonds: completed,
-      failedBonds: failed,
-      totalXlmStaked: stakedSum
-    });
+    return NextResponse.json(metrics);
   } catch (error: any) {
     console.error("Metrics API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import type { CreateBondInput } from '@/types'
 import { sorobanService } from '@/lib/soroban'
+import { logUserActivity } from '@/lib/logger'
 
 export async function createBond(input: CreateBondInput) {
   const supabase = await createClient()
@@ -33,6 +34,15 @@ export async function createBond(input: CreateBondInput) {
     .single()
 
   if (error) return { error: error.message }
+
+  if (data) {
+    await logUserActivity(user.id, 'CREATE_BOND', 'bond', data.id, {
+      stake_amount: input.stake_amount,
+      category: input.category,
+      proof_type: input.proof_type,
+      visibility: input.visibility,
+    })
+  }
 
   // If a real tx was completely skipped (maybe 0 stake), scaffold mock
   if (data && input.stake_amount > 0 && !input.soroban_tx_hash) {
@@ -120,6 +130,10 @@ export async function joinBond(bondId: string) {
 
   if (error) return { error: error.message }
 
+  await logUserActivity(user.id, 'JOIN_BOND', 'bond', bondId, {
+    stake_amount: bond?.stake_amount || null,
+  })
+
   // Scaffold Soroban join
   if (bond) {
     await sorobanService.joinBond(bondId, 'pending_wallet', bond.stake_amount)
@@ -142,6 +156,10 @@ export async function updateBondStatus(bondId: string, status: string) {
 
   if (error) return { error: error.message }
 
+  await logUserActivity(user.id, 'SETTLE_BOND', 'bond', bondId, {
+    status,
+  })
+
   // Scaffold Soroban settle
   if (status === 'completed' || status === 'failed') {
     await sorobanService.settleBond(bondId, status as 'completed' | 'failed')
@@ -151,8 +169,6 @@ export async function updateBondStatus(bondId: string, status: string) {
   revalidatePath('/dashboard')
   return { success: true }
 }
-
-import { logUserActivity } from '@/lib/logger';
 
 export async function claimBondAction(bondId: string, txHash: string) {
   const supabase = await createClient()

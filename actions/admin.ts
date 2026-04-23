@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getPlatformMetrics } from '@/lib/metrics';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -29,24 +30,21 @@ export async function getAdminStats() {
   const supabase = await createClient();
   await checkAdmin();
 
-  // Basic stats
-  const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-  const { count: totalBonds } = await supabase.from('skill_bonds').select('*', { count: 'exact', head: true });
-  const { count: activeBonds } = await supabase.from('skill_bonds').select('*', { count: 'exact', head: true }).eq('status', 'active');
-  const { count: completedBonds } = await supabase.from('skill_bonds').select('*', { count: 'exact', head: true }).eq('status', 'completed');
-  const { count: failedBonds } = await supabase.from('skill_bonds').select('*', { count: 'exact', head: true }).eq('status', 'failed');
-  
-  // Total XLM Staked
-  const { data: bondsData } = await supabase.from('skill_bonds').select('stake_amount');
-  const totalStaked = bondsData?.reduce((acc, bond) => acc + (Number(bond.stake_amount) || 0), 0) || 0;
+  const metrics = await getPlatformMetrics(supabase);
 
   return {
-    totalUsers: totalUsers || 0,
-    totalBonds: totalBonds || 0,
-    activeBonds: activeBonds || 0,
-    completedBonds: completedBonds || 0,
-    failedBonds: failedBonds || 0,
-    totalStaked
+    totalUsers: metrics.totalUsers,
+    totalBonds: metrics.totalBonds,
+    activeBonds: metrics.activeBonds,
+    completedBonds: metrics.completedBonds,
+    failedBonds: metrics.failedBonds,
+    totalStaked: metrics.totalXlmStaked,
+    dau: metrics.dau,
+    activeUsers24h: metrics.activeUsers24h,
+    transactions24h: metrics.transactions24h,
+    transactions30d: metrics.transactions30d,
+    totalTransactions: metrics.totalTransactions,
+    retention7d: metrics.retention7d,
   };
 }
 

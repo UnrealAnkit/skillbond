@@ -9,6 +9,9 @@ interface OverviewStatsProps {
     completedBonds: number;
     failedBonds: number;
     totalStaked: number;
+    dau: number;
+    transactions24h: number;
+    retention7d: number;
   };
 }
 
@@ -52,6 +55,36 @@ export default function OverviewStats({ stats }: OverviewStatsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.activeBonds}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">DAU (24h)</CardTitle>
+          <Activity className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.dau}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Transactions (24h)</CardTitle>
+          <FileText className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.transactions24h}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">7d Retention</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.retention7d}%</div>
         </CardContent>
       </Card>
 

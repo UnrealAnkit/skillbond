@@ -1,15 +1,26 @@
 import { createClient } from '@/lib/supabase/server';
 
-export async function logUserActivity(userId: string, action: string, entityType?: string, entityId?: string, metadata: any = {}) {
+export async function logUserActivity(
+  userId: string,
+  action: string,
+  entityType?: string,
+  entityId?: string,
+  metadata: Record<string, unknown> = {}
+) {
   try {
     const supabase = await createClient();
-    await supabase.from('activity_logs').insert({
-      user_id: user_id,
+    const { error } = await supabase.from('activity_logs').insert({
+      user_id: userId,
       action,
       entity_type: entityType,
       entity_id: entityId,
       metadata
     });
+
+    // In some environments activity_logs may be missing or blocked by RLS policy.
+    if (error && error.code !== '42P01' && error.code !== '42501') {
+      console.error('Failed to write user activity:', error);
+    }
   } catch (error) {
     console.error('Failed to log activity:', error);
   }

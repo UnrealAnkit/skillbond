@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { logUserActivity } from '@/lib/logger'
 
 export async function submitFeedback(data: {
   bond_id?: string
@@ -20,6 +21,12 @@ export async function submitFeedback(data: {
   })
 
   if (error) return { error: error.message }
+
+  await logUserActivity(user.id, 'SUBMIT_FEEDBACK', 'feedback', data.bond_id, {
+    rating: data.rating,
+    issue_type: data.issue_type || null,
+  })
+
   revalidatePath('/feedback')
   return { success: true }
 }
