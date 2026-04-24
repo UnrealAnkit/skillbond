@@ -20,9 +20,9 @@ export default function LoginPage() {
           <Image
             src="/skillbonglogosvg.svg"
             alt="SkillBond Logo"
-            width={320}
-            height={320}
-            className="h-36 w-auto sm:h-40"
+            width={420}
+            height={420}
+            className="h-40 w-auto sm:h-44"
             unoptimized
             priority
           />

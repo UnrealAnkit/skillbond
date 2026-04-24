@@ -30,10 +30,10 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-white/7 bg-[#080B0F]/90 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex h-14 items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center flex-shrink-0">
-          <Image src="/skillbonglogosvg.svg" alt="SkillBond Logo" width={180} height={64} className="h-10 w-auto sm:h-11 object-contain" unoptimized priority />
+          <Image src="/skillbonglogosvg.svg" alt="SkillBond Logo" width={220} height={72} className="h-11 w-auto sm:h-12 object-contain" unoptimized priority />
         </Link>
 
         {/* Desktop nav */}

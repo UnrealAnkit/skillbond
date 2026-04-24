@@ -27,7 +27,7 @@ export default async function AdminLoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#080B0F]">
       <div className="w-full max-w-md mb-8 text-center">
-        <Image src="/skillbonglogosvg.svg" alt="SkillBond Logo" width={360} height={360} className="mx-auto h-40 w-auto sm:h-44 object-contain mb-3" unoptimized priority />
+        <Image src="/skillbonglogosvg.svg" alt="SkillBond Logo" width={440} height={440} className="mx-auto h-44 w-auto sm:h-48 object-contain mb-3" unoptimized priority />
         <p className="text-zinc-400">Secure Administration Portal</p>
       </div>
       <AdminLoginForm />

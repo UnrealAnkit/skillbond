@@ -25,9 +25,9 @@ export default async function LandingPage() {
           <Image
             src="/skillbonglogosvg.svg"
             alt="SkillBond Logo"
-            width={320}
-            height={320}
-            className="h-14 w-auto sm:h-16"
+            width={420}
+            height={420}
+            className="h-16 w-auto sm:h-[4.5rem]"
             unoptimized
             priority
           />
