@@ -18,7 +18,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm relative z-10 text-center">
         <Link href="/" className="inline-flex items-center gap-2 group mb-4">
           <Image
-            src="/skillbonglogosvg.svg"
+            src="/skillbonglogosvg.svg?v=20260427"
             alt="SkillBond Logo"
             width={420}
             height={420}

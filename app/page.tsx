@@ -23,7 +23,7 @@ export default async function LandingPage() {
       <nav className="relative z-10 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
           <Image
-            src="/skillbonglogosvg.svg"
+            src="/skillbonglogosvg.svg?v=20260427"
             alt="SkillBond Logo"
             width={420}
             height={420}
