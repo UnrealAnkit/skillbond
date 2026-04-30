@@ -208,7 +208,10 @@ Create Bond → Stake XLM → Work → Submit Proof
 
 ### Demo & Metrics
 * **Live Demo:**  https://skillbond.netlify.app/
-* **Metrics Dashboard:** [Screenshot Link (placeholder)](https://res.cloudinary.com/...)
+* **📊 Live Metrics Dashboard:** [https://skillbond.vercel.app/metrics](https://skillbond.vercel.app/metrics)
+  - Live transaction feed pulled from the Stellar Horizon testnet API
+  - Charts for daily active users and node usage
+  - On-chain WorkflowRegistry call counts — auto-refreshing every 30 seconds.
 * **Monitoring Dashboard:** [Screenshot Link (placeholder)](https://res.cloudinary.com/...)
 * **Deployed Smart Contract:** C... (Testnet)
 
