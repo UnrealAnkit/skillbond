@@ -108,7 +108,7 @@ export default function PublicMetricsDashboard() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Activity className="text-purple-500" />
-              Admin Console - Advanced Metrics
+              Advanced Metrics
             </h1>
             <p className="text-zinc-400 mt-2">Live data from Stellar Horizon testnet & SkillBond database</p>
           </div>
