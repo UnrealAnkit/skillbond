@@ -207,7 +207,7 @@ Create Bond → Stake XLM → Work → Submit Proof
 ## 🌟 Level 6: Black Belt Delivery
 
 ### Demo & Metrics
-* **Live Demo:** [https://skillbond.vercel.app/](https://skillbond.vercel.app/)
+* **Live Demo:**  https://skillbond.netlify.app/
 * **Metrics Dashboard:** [Screenshot Link (placeholder)](https://res.cloudinary.com/...)
 * **Monitoring Dashboard:** [Screenshot Link (placeholder)](https://res.cloudinary.com/...)
 * **Deployed Smart Contract:** C... (Testnet)
