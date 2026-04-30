@@ -20,12 +20,15 @@ const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042'];
 
 export default function PublicMetricsDashboard() {
   const [metrics, setMetrics] = useState({
-    workflowsRun: 0,
     totalUsers: 0,
-    activeUsers: 0,
-    liveUsers: 0,
-    totalTransactions: 0,
-    contractCalls: 0,
+    totalBonds: 0,
+    totalXlmStaked: 0,
+    activeBonds: 0,
+    dau: 0,
+    transactions24h: 0,
+    retention7d: 0,
+    completedBonds: 0,
+    failedBonds: 0,
   });
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -51,15 +54,17 @@ export default function PublicMetricsDashboard() {
       if (res.ok) {
         const dbMetrics = await res.json();
         
-        setMetrics(prev => ({
-          ...prev,
-          workflowsRun: dbMetrics.totalBonds || 0, // Using total Bonds created as workflows runs for now
+        setMetrics({
           totalUsers: dbMetrics.totalUsers || 0,
-          activeUsers: dbMetrics.activeUsers24h || 0,
-          liveUsers: Math.floor(Math.random() * 5) + 1, // Still simulated live
-          totalTransactions: prev.totalTransactions + Math.floor(Math.random() * 3), // From Horizon or keep simulate
-          contractCalls: dbMetrics.totalTransactions || 0, // E.g., on-chain transactions metric from DB
-        }));
+          totalBonds: dbMetrics.totalBonds || 0,
+          totalXlmStaked: dbMetrics.totalXlmStaked || 0,
+          activeBonds: dbMetrics.activeBonds || 0,
+          dau: dbMetrics.dau || 0,
+          transactions24h: dbMetrics.transactions24h || 0,
+          retention7d: dbMetrics.retention7d || 0,
+          completedBonds: dbMetrics.completedBonds || 0,
+          failedBonds: dbMetrics.failedBonds || 0,
+        });
       }
       
       setLastUpdated(new Date());
@@ -103,9 +108,9 @@ export default function PublicMetricsDashboard() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Activity className="text-purple-500" />
-              Metrics Dashboard
+              Admin Console - Advanced Metrics
             </h1>
-            <p className="text-zinc-400 mt-2">Live data from Stellar Horizon testnet</p>
+            <p className="text-zinc-400 mt-2">Live data from Stellar Horizon testnet & SkillBond database</p>
           </div>
           <div className="mt-4 md:mt-0 flex items-center gap-4 text-sm text-zinc-400">
             <span>Last updated: {mounted && lastUpdated ? lastUpdated.toLocaleTimeString() : '...'}</span>
@@ -125,17 +130,7 @@ export default function PublicMetricsDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-          <Card className="bg-[#161B22] border-white/10">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Workflows Run</CardTitle>
-              <PlayCircle size={16} className="text-purple-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{metrics.workflowsRun}</div>
-              <p className="text-xs text-zinc-500 mt-1">tracked in this session</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           <Card className="bg-[#161B22] border-white/10">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Total Users</CardTitle>
@@ -143,47 +138,78 @@ export default function PublicMetricsDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-white">{metrics.totalUsers}</div>
-              <p className="text-xs text-zinc-500 mt-1">historical registered accounts</p>
             </CardContent>
           </Card>
           <Card className="bg-[#161B22] border-white/10">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Active Users</CardTitle>
-              <Zap size={16} className="text-green-400" />
+              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Total Bonds</CardTitle>
+              <PlayCircle size={16} className="text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-white">{metrics.activeUsers}</div>
-              <p className="text-xs text-zinc-500 mt-1">active within last 7 days</p>
+              <div className="text-3xl font-bold text-white">{metrics.totalBonds}</div>
             </CardContent>
           </Card>
           <Card className="bg-[#161B22] border-white/10">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Live Users</CardTitle>
-              <Activity size={16} className="text-red-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-white">{metrics.liveUsers}</div>
-              <p className="text-xs text-zinc-500 mt-1">current active sessions</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-[#161B22] border-white/10">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Total Transactions</CardTitle>
+              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Total XLM Staked</CardTitle>
               <Wallet size={16} className="text-yellow-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-white">{metrics.totalTransactions}</div>
-              <p className="text-xs text-zinc-500 mt-1">processed via Stellar Horizon</p>
+              <div className="text-3xl font-bold text-white">{metrics.totalXlmStaked} XLM</div>
             </CardContent>
           </Card>
           <Card className="bg-[#161B22] border-white/10">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Contract Calls</CardTitle>
-              <Zap size={16} className="text-cyan-400" />
+              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Active Bonds</CardTitle>
+              <Activity size={16} className="text-cyan-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-white">{metrics.contractCalls}</div>
-              <p className="text-xs text-zinc-500 mt-1">WorkflowRegistry on-chain</p>
+              <div className="text-3xl font-bold text-white">{metrics.activeBonds}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#161B22] border-white/10">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">DAU (24h)</CardTitle>
+              <Zap size={16} className="text-green-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">{metrics.dau}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#161B22] border-white/10">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Transactions (24h)</CardTitle>
+              <Activity size={16} className="text-red-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">{metrics.transactions24h}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#161B22] border-white/10">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">7d Retention</CardTitle>
+              <Activity size={16} className="text-purple-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">{metrics.retention7d}%</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#161B22] border-white/10">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Completed Bonds</CardTitle>
+              <Zap size={16} className="text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">{metrics.completedBonds}</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#161B22] border-white/10">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-xs font-medium text-zinc-400 uppercase">Failed Bonds</CardTitle>
+              <Activity size={16} className="text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-white">{metrics.failedBonds}</div>
             </CardContent>
           </Card>
         </div>
