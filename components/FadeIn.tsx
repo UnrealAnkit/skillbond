@@ -12,10 +12,10 @@ interface FadeInProps {
 
 export function FadeIn({ children, delay = 0, direction = "up", className = "" }: FadeInProps) {
   const directions = {
-    up: { y: 40, x: 0 },
-    down: { y: -40, x: 0 },
-    left: { x: 40, y: 0 },
-    right: { x: -40, y: 0 },
+    up: { y: 20, x: 0 },
+    down: { y: -20, x: 0 },
+    left: { x: 20, y: 0 },
+    right: { x: -20, y: 0 },
     none: { x: 0, y: 0 },
   }
 
@@ -23,11 +23,11 @@ export function FadeIn({ children, delay = 0, direction = "up", className = "" }
     <motion.div
       initial={{ opacity: 0, ...directions[direction] }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, margin: "-10px" }}
       transition={{
-        duration: 0.7,
-        delay,
-        ease: [0.21, 0.47, 0.32, 0.98], // custom easing resembling refined animation
+        duration: 0.4,
+        delay: delay * 0.5,
+        ease: "easeOut",
       }}
       className={className}
     >
