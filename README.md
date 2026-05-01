@@ -8,7 +8,7 @@
 Feedback Form:
 👉 [https://forms.gle/QSN5nZkfJzdtcDLN8]
 
-👉 Website URL: https://skillbond.netlify.app/
+👉 Website URL: https://skillbond.vercel.app/
 
 👉 Spreadsheet https://docs.google.com/spreadsheets/d/11wJpckZD1zeSWpG347YAIzJSKXYHEKPctpfMHjCtxk8/edit?usp=sharing
 
@@ -207,8 +207,8 @@ Create Bond → Stake XLM → Work → Submit Proof
 ## 🌟 Level 6: Black Belt Delivery
 
 ### Demo & Metrics
-* **Live Demo:**  https://skillbond.netlify.app/
-* **📊 Live Metrics Dashboard:** [https://skillbond.vercel.app/metrics](https://skillbond.vercel.app/metrics)
+* **Live Demo:**  https://skillbond.vercel.app/
+
   - Live transaction feed pulled from the Stellar Horizon testnet API
   - Charts for daily active users and node usage
   - On-chain WorkflowRegistry call counts — auto-refreshing every 30 seconds.
