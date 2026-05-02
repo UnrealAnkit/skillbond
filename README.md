@@ -328,3 +328,10 @@ B.Tech CSE | Builder | Web3 + AI
 SkillBond is not just a product.
 
 It’s a **behavior layer powered by incentives and blockchain logic**.
+## Screenshots
+
+![Admin Dashboard](public/Admin%20Dashboard.jpg)
+![Admin Dashboard 1](public/Admin%20Dashboard%201.jpg)
+![On chain txn](public/On%20chain%20txn.jpg)
+![Stellar Explorer](public/Stellar%20Exploerer.jpg)
+![Wallet](public/Wallet.jpg)
