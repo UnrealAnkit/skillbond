@@ -29,6 +29,16 @@ https://docs.google.com/document/d/14mrS23szPeMViDp0Vwt6uZDdZw07idciWSCBF4osm1A/
 
 ---
 
+## Screenshots
+
+![Admin Dashboard](public/Admin%20Dashboard.jpg)
+![Admin Dashboard 1](public/Admin%20Dashboard%201.jpg)
+![On chain txn](public/On%20chain%20txn.jpg)
+![Stellar Explorer](public/Stellar%20Exploerer.jpg)
+![Wallet](public/Wallet.jpg)
+
+---
+
 # 🚀 SkillBond
 
 **SkillBond** is a Web3 accountability platform where users stake XLM on their goals and only unlock funds if they successfully complete them.
@@ -328,10 +338,3 @@ B.Tech CSE | Builder | Web3 + AI
 SkillBond is not just a product.
 
 It’s a **behavior layer powered by incentives and blockchain logic**.
-## Screenshots
-
-![Admin Dashboard](public/Admin%20Dashboard.jpg)
-![Admin Dashboard 1](public/Admin%20Dashboard%201.jpg)
-![On chain txn](public/On%20chain%20txn.jpg)
-![Stellar Explorer](public/Stellar%20Exploerer.jpg)
-![Wallet](public/Wallet.jpg)
